@@ -25,7 +25,71 @@ impl Graph {
     }
 }
 
+// Plot centrality without labels
+pub fn plot_centrality_no_labels(
+    centrality: &HashMap<usize, usize>,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let root = BitMapBackend::new("centrality_visualization_no_labels.png", (1024, 768))
+        .into_drawing_area();
+    root.fill(&WHITE)?;
 
+    let max_centrality = centrality.values().cloned().max().unwrap_or(0);
+    let mut chart = ChartBuilder::on(&root)
+        .caption("Node Centrality Visualization Without Labels", ("sans-serif", 20))
+        .margin(10)
+        .x_label_area_size(30)
+        .y_label_area_size(30)
+        .build_cartesian_2d(0..centrality.len(), 0..(max_centrality + 10))?;
+
+    chart.configure_mesh().draw()?;
+
+    // Plot the centrality values as points on the graph
+    chart.draw_series(
+        centrality
+            .iter()
+            .map(|(&node, &score)| Circle::new((node, score), 5, BLUE.filled())),
+    )?;
+
+    Ok(())
+}
+
+// Plot centrality with labels for US nodes
+pub fn plot_centrality(
+    centrality: &HashMap<usize, usize>,
+    labels: &HashMap<usize, String>,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let root = BitMapBackend::new("centrality_visualization_us_labeled.png", (1024, 768))
+        .into_drawing_area();
+    root.fill(&WHITE)?;
+
+    let max_centrality = centrality.values().cloned().max().unwrap_or(0);
+    let mut chart = ChartBuilder::on(&root)
+        .caption("Node Centrality Visualization with US Labels", ("sans-serif", 20))
+        .margin(10)
+        .x_label_area_size(30)
+        .y_label_area_size(30)
+        .build_cartesian_2d(0..labels.len(), 0..(max_centrality + 10))?;
+
+    chart.configure_mesh().draw()?;
+
+    // Plot only US nodes with labels
+    for (&node, &score) in centrality {
+        if let Some(label) = labels.get(&node) {
+            if label == "United States" {
+                // Plot the US node
+                chart.draw_series(std::iter::once(Circle::new((node, score), 5, BLUE.filled())))?;
+
+                // Add label for the US node
+                chart.draw_series(std::iter::once(
+                    Text::new(
+                        format!("US: {}", score),
+                        (node, score + 5), // Offset to reduce overlap
+                        ("sans-serif", 12).into_font(),
+                    ),
+                ))?;
+            }
+        }
+    }
 
     Ok(())
 }
