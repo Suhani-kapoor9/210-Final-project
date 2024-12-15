@@ -8,14 +8,14 @@ use graph::{Graph, plot_centrality,plot_centrality_no_labels};
 
 
 fn main() -> Result<(), Box<dyn Error>> {
-    // Load the data from the CSV file
+    
     let mut reader = Reader::from_path("companies1.csv")?;
 
     let mut marketcap = Vec::new();
     let mut prices = Vec::new();
     let mut countries = Vec::new();
 
-    // Read and parse records
+    
     for record in reader.records() {
         let record = record?;
         if let (Ok(mc), Ok(price), Ok(country)) = (
@@ -29,7 +29,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    // Market Cap Distribution Analysis
+   
     println!("Market Cap Distribution:");
     let max_cap = marketcap.iter().cloned().fold(f64::MIN, f64::max);
     let bins = 10;
@@ -45,7 +45,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         println!("Bin {}: {}", i, count);
     }
 
-    // Plot Market Cap Distribution
+   
     let root = BitMapBackend::new("marketcap_distribution.png", (800, 600)).into_drawing_area();
     root.fill(&WHITE)?;
     let mut chart = ChartBuilder::on(&root)
@@ -68,7 +68,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }),
     )?;
 
-    // Global Representation Mapping
+    
     println!("\nGlobal Representation by Country:");
     let mut country_map: HashMap<String, usize> = HashMap::new();
     for country in &countries {
@@ -78,7 +78,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         println!("Country: {}, Companies: {}", country, count);
     }
 
-    // Plot Global Representation
+  
     let root = BitMapBackend::new("global_representation.png", (800, 600)).into_drawing_area();
     root.fill(&WHITE)?;
     let mut chart = ChartBuilder::on(&root)
@@ -104,7 +104,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }),
     )?;
 
-    // Outlier Detection
+    
     println!("\nOutliers (High Market Cap or Stock Price):");
     let cap_threshold = max_cap * 0.9; // Top 10% market caps as outliers
     let mut outliers = Vec::new();
@@ -118,7 +118,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    // Plot Outliers
+ 
     let root = BitMapBackend::new("outliers.png", (800, 600)).into_drawing_area();
     root.fill(&WHITE)?;
     let mut chart = ChartBuilder::on(&root)
@@ -139,21 +139,21 @@ fn main() -> Result<(), Box<dyn Error>> {
     )?;
 
 
-        // Step 2: Create the Graph
+        
 let mut graph = Graph::new();
 for (i, country) in countries.iter().enumerate() {
     for (j, other_country) in countries.iter().enumerate() {
         if i != j && country == other_country {
-            graph.add_edge(i, j); // Add an edge if the countries match
+            graph.add_edge(i, j); 
         }
     }
 }
 
-// Step 3: Compute Degree Centrality
+
 let degree_centrality = graph.compute_degrees();
 println!("Degree Centrality: {:?}", degree_centrality);
 
-// Step 4: Inspect U.S. Centrality
+
 println!("\nU.S. Nodes with Centrality:");
 for (&node, &centrality) in &degree_centrality {
     if let Some(label) = countries.get(node) {
@@ -163,16 +163,16 @@ for (&node, &centrality) in &degree_centrality {
     }
 }
 
-// Step 5: Prepare Labels for Visualization
+
 let mut labels = HashMap::new();
 for (i, country) in countries.iter().enumerate() {
     labels.insert(i, country.clone());
 }
 
-// Step 6: Visualize Centrality with US Labels
+
 plot_centrality(&degree_centrality, &labels)?;
 
-// Step 7: Plot centrality without labels
+
 plot_centrality_no_labels(&degree_centrality)?;
 
 Ok(())
@@ -181,7 +181,7 @@ Ok(())
 
 pub fn calculate_histogram(data: &[f64], bins: usize) -> Vec<usize> {
     if data.is_empty() || bins == 0 {
-        return vec![0; bins]; // Handle edge cases
+        return vec![0; bins]; 
     }
 
     let max_value = data.iter().cloned().fold(f64::MIN, f64::max);
@@ -192,7 +192,7 @@ pub fn calculate_histogram(data: &[f64], bins: usize) -> Vec<usize> {
 
     for &value in data {
         let bin = if value == max_value {
-            bins - 1 // Explicitly place max_value in the last bin
+            bins - 1 
         } else {
             ((value - min_value) / bin_width).floor() as usize
         };
@@ -224,26 +224,21 @@ mod tests {
     #[test]
 fn test_calculate_histogram_non_uniform() {
     let data = vec![0.5, 1.5, 2.0, 2.8, 3.3, 3.7, 4.1, 4.9, 5.0, 5.5];
-    let bins = 4; // Divide into 4 bins
+    let bins = 4;
     let histogram = calculate_histogram(&data, bins);
 
-    // Check the total count matches the data length
+    
     let total_count: usize = histogram.iter().sum();
     assert_eq!(total_count, data.len());
 
-    // Debug print for manual verification
+
     println!("Histogram: {:?}", histogram);
 
-    // Expected bin allocations
-    // Bin ranges:
-    // [0.5, 1.875): 0.5, 1.5 -> Count: 2
-    // [1.875, 3.25): 2.0, 2.8 -> Count: 2
-    // [3.25, 4.625): 3.3, 3.7, 4.1 -> Count: 3
-    // [4.625, 6.0]: 4.9, 5.0, 5.5 -> Count: 3
-    assert_eq!(histogram[0], 2); // First bin
-    assert_eq!(histogram[1], 2); // Second bin
-    assert_eq!(histogram[2], 3); // Third bin
-    assert_eq!(histogram[3], 3); // Fourth bin
+   
+    assert_eq!(histogram[0], 2); 
+    assert_eq!(histogram[1], 2); 
+    assert_eq!(histogram[2], 3); 
+    assert_eq!(histogram[3], 3); 
 }
 
 
