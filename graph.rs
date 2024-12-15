@@ -25,7 +25,7 @@ impl Graph {
     }
 }
 
-// Plot centrality without labels
+
 pub fn plot_centrality_no_labels(
     centrality: &HashMap<usize, usize>,
 ) -> Result<(), Box<dyn std::error::Error>> {
@@ -43,7 +43,7 @@ pub fn plot_centrality_no_labels(
 
     chart.configure_mesh().draw()?;
 
-    // Plot the centrality values as points on the graph
+    
     chart.draw_series(
         centrality
             .iter()
@@ -53,7 +53,7 @@ pub fn plot_centrality_no_labels(
     Ok(())
 }
 
-// Plot centrality with labels for US nodes
+
 pub fn plot_centrality(
     centrality: &HashMap<usize, usize>,
     labels: &HashMap<usize, String>,
@@ -72,18 +72,18 @@ pub fn plot_centrality(
 
     chart.configure_mesh().draw()?;
 
-    // Plot only US nodes with labels
+  
     for (&node, &score) in centrality {
         if let Some(label) = labels.get(&node) {
             if label == "United States" {
-                // Plot the US node
+               
                 chart.draw_series(std::iter::once(Circle::new((node, score), 5, BLUE.filled())))?;
 
-                // Add label for the US node
+         
                 chart.draw_series(std::iter::once(
                     Text::new(
                         format!("US: {}", score),
-                        (node, score + 5), // Offset to reduce overlap
+                        (node, score + 5),
                         ("sans-serif", 12).into_font(),
                     ),
                 ))?;
@@ -93,4 +93,6 @@ pub fn plot_centrality(
 
     Ok(())
 }
+
+
 
